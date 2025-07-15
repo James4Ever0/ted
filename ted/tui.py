@@ -8,13 +8,15 @@ from textual import events, on
 import os
 from typing import Optional
 from pathlib import PurePath
+from textual.widgets.text_area import BUILTIN_LANGUAGES
 
 class YesNoScreen(ModalScreen[str]):
+    CSS_PATH ='editor.css'
     def compose(self) -> ComposeResult:
         yield Static("Save before exit?")
-        yield Button(name="Save", id="save")
-        yield Button(name="Quit", id="quit")
-        yield Button(name="Resume", id="resume")
+        yield Button(label="Save", id="save")
+        yield Button(label="Quit", id="quit")
+        yield Button(label="Resume", id="resume")
     def on_button_pressed(self, event: Button.Pressed) -> None:
         ret =event.button.id
         self.dismiss(ret)
@@ -26,7 +28,7 @@ class YesNoScreen(ModalScreen[str]):
 # TODO: enable word wrap, make word wrap as default, can be toggled with a keyboard shortcut switch ctrl+w
 def infer_language_from_filepath(file_path:str):
     file_extension = PurePath(file_path).suffix
-    languages = {"." + e: e for e in TextArea.available_languages}
+    languages = {"." + e: e for e in BUILTIN_LANGUAGES}
     extensions = {
             ".yml": "yaml",
             ".py": "python",
@@ -52,7 +54,7 @@ class TextEditorApp(App):
     def __init__(self, filepath: Optional[str] = None, content: str= "", modified=False, language:Optional[str]=None, title:str='ted', *args, **kwargs):
         super().__init__(*args, **kwargs)
         assert content is not None
-        self.title=title
+        self._title=title
         self.filepath = filepath
         if language:
             self.language=language
@@ -61,14 +63,14 @@ class TextEditorApp(App):
         else:
             self.language=None
         if self.language:
-            assert self.language in TextArea.available_languages
+            assert self.language in BUILTIN_LANGUAGES
         self.initial_content = content
         self.result = content
         self.modified = modified
         
     def compose(self) -> ComposeResult:
         yield Header()
-        yield TextArea.code_editor(self.initial_content, id="editor",language=self.language,soft_wrap=True)
+        yield TextArea.code_editor(self.initial_content, id="editor", language=self.language, soft_wrap=True)
         yield Footer(show_command_palette=False)
         
     def on_mount(self) -> None:
@@ -76,7 +78,7 @@ class TextEditorApp(App):
         self.update_title()
         
     def update_title(self) -> None:
-        title = self.title
+        title = self._title
         if self.filepath:
             title = f"{os.path.basename(self.filepath)} - {title}"
             if self.modified:
@@ -110,21 +112,25 @@ class TextEditorApp(App):
             except OSError as e:
                 self.notify(f"Save failed: {str(e)}", severity="error")
         self.result = content
-        
-    def key_ctrl_q(self) -> None:
-        self.exit()
+
     def prompt_for_saving(self):
         def _callback(msg:str):
             setattr(self, 'exit_msg', msg)
             if msg == 'save':
                 self.save_file()
+            if msg != 'resume':
+                self.super_exit()
         self.push_screen(YesNoScreen(), callback=_callback)
-        # self.save_file()
+    def super_exit(self):
+        super().exit()
+
     def exit(self) -> None:
-        setattr(self, 'exit_msg','undefined')
+        setattr(self, 'exit_msg', 'undefined')
+        prompted=False
         if self.filepath:            
             # prompt before save
             if self.modified:
+                prompted=True
                 self.prompt_for_saving()
-        if getattr(self, 'exit_msg', 'undefined') != 'resume':
+        if not prompted:
             super().exit()

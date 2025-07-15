@@ -2,3 +2,12 @@ TextArea{
     text-wrap: wrap;
     height: 100%; 
 }
+Screen {
+    width:100%;
+    height:100%;
+    align: center middle;
+    content-align-horizontal: center;
+}
+Static{
+  width:auto;
+}
