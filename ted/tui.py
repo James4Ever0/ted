@@ -7,6 +7,7 @@ from textual.reactive import reactive
 from textual import events, on
 import os
 from typing import Optional
+from pathlib import PurePath
 
 class YesNoScreen(ModalScreen[str]):
     def compose(self) -> ComposeResult:
@@ -23,7 +24,21 @@ class YesNoScreen(ModalScreen[str]):
             self.dismiss('resume')
 # since textual-editor is most likely bloatware, we don't want to adopt it.
 # TODO: enable word wrap, make word wrap as default, can be toggled with a keyboard shortcut switch ctrl+w
-
+def infer_language_from_filepath(file_path:str):
+    file_extension = PurePath(file_path).suffix
+    languages = {"." + e: e for e in TextArea.available_languages}
+    extensions = {
+            ".yml": "yaml",
+            ".py": "python",
+            ".js": "javascript",
+            ".md": "markdown",
+            ".sh": "bash",
+    }
+    if file_extension in languages:
+        return languages[file_extension]
+    if file_extension in extensions:
+        return extensions[file_extension]
+    
 class TextEditorApp(App):
     """Textual-based text editor interface"""
     
@@ -42,9 +57,11 @@ class TextEditorApp(App):
         if language:
             self.language=language
         elif filepath:
-            self.language=infer_anguage_from_filepath(filepath)
+            self.language=infer_language_from_filepath(filepath)
         else:
             self.language=None
+        if self.language:
+            assert self.language in TextArea.available_languages
         self.initial_content = content
         self.result = content
         self.modified = modified
