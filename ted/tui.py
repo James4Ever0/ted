@@ -44,7 +44,7 @@ class TextEditorApp(App):
         
     def compose(self) -> ComposeResult:
         yield Header()
-        yield TextArea.code_editor(self.initial_content, id="editor")
+        yield TextArea.code_editor(self.initial_content, id="editor", soft_wrap=True)
         yield Footer(show_command_palette=False)
         
     def on_mount(self) -> None:
@@ -71,11 +71,8 @@ class TextEditorApp(App):
     
     def action_wrap(self) -> None:
         widget = self.query_one(TextArea)
-        wrap_style = widget.styles.text_wrap
-        if wrap_style == "nowrap":
-            widget.styles.text_wrap = "wrap"
-        else:
-            widget.styles.text_wrap = "nowrap"
+        wrap_style = widget.soft_wrap
+        widget.soft_wrap = not wrap_style
         
     def save_file(self) -> None:
         content = self.query_one(TextArea).text
