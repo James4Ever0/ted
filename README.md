@@ -1,6 +1,18 @@
-# ted - Terminal Text Editor
 
-A simple TUI text editor using Textual.
+<div align="center">
+
+<h1>ted</h1>
+<p align="center">A simple TUI editor with a CLI and API using Textual</p>
+<p align="center">
+<a href="https://github.com/james4ever0/ted/blob/master/LICENSE"><img alt="License: WTFPL" src="https://img.shields.io/badge/license-UNLICENSE-green.svg?style=flat"></a>
+<a href="https://pypi.org/project/ted-editor/"><img alt="PyPI" src="https://img.shields.io/pypi/v/ted-editor"></a>
+<a href="https://deepwiki.com/James4Ever0/ted"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
+<a href="https://pepy.tech/projects/ted-editor"><img src="https://static.pepy.tech/badge/ted-editor" alt="PyPI Downloads"></a>
+<a href="https://github.com/james4ever0/ted"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+</p>
+</div>
+
+
 
 ## Installation
 ```bash
