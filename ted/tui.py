@@ -2,9 +2,7 @@ from textual.app import App, ComposeResult
 from textual.widgets import Static, TextArea, Button, Footer, Header
 from textual.binding import Binding
 from textual.screen import ModalScreen
-from textual.containers import Container, Horizontal
-from textual.reactive import reactive
-from textual import events, on
+from textual import events
 import os
 from typing import Optional
 from pathlib import PurePath
@@ -53,6 +51,7 @@ def infer_language_from_filepath(file_path: str):
         ".js": "javascript",
         ".md": "markdown",
         ".sh": "bash",
+        ".rs": "rust",
     }
     if file_extension in languages:
         return languages[file_extension]
@@ -102,7 +101,7 @@ class TextEditorApp(App):
     def compose(self) -> ComposeResult:
         yield Header()
         yield TextArea.code_editor(
-            self.initial_content, id="editor", language=self.language, soft_wrap=True
+            text=self.initial_content, id="editor", language=self.language, soft_wrap=True
         )
         yield Footer(show_command_palette=False)
 

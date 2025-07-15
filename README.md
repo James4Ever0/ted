@@ -16,7 +16,11 @@
 
 ## Installation
 ```bash
+# without syntax highlight
 pip install ted-editor
+
+# with syntax highlight
+pip install ted-editor[syntax]
 ```
 
 ### Key Features

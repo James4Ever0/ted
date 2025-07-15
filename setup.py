@@ -4,7 +4,7 @@ from shutil import rmtree
 import sys
 
 here = os.path.abspath(os.path.dirname(__file__))
-
+VERSION="0.1.1"
 
 class UploadCommand(Command):
     """Support setup.py upload."""
@@ -43,10 +43,13 @@ class UploadCommand(Command):
 
         sys.exit()
 
+EXTRAS = {
+    'syntax': ['textual[syntax]'],
+}
 
 setup(
     name="ted-editor",
-    version="0.1.0",
+    version=VERSION,
     packages=find_packages(),
     install_requires=[
         "textual>=0.1.18",
@@ -56,6 +59,7 @@ setup(
             "ted = ted.cli:main",
         ],
     },
+    extras_require=EXTRAS,
     author="James Brown",
     author_email="randomvoidmail@foxmail.com",
     description="Terminal Text Editor with TUI",
