@@ -34,17 +34,24 @@ class TextEditorApp(App):
       ]]
     CSS_PATH = "editor.css" # or we can comment this out
 
-    def __init__(self, filepath: Optional[str] = None, content: str= "", modified=False, *args, **kwargs):
+    def __init__(self, filepath: Optional[str] = None, content: str= "", modified=False, language:Optional[str]=None, title:str='ted', *args, **kwargs):
         super().__init__(*args, **kwargs)
         assert content is not None
+        self.title=title
         self.filepath = filepath
+        if language:
+            self.language=language
+        elif filepath:
+            self.language=infer_anguage_from_filepath(filepath)
+        else:
+            self.language=None
         self.initial_content = content
         self.result = content
         self.modified = modified
         
     def compose(self) -> ComposeResult:
         yield Header()
-        yield TextArea.code_editor(self.initial_content, id="editor", soft_wrap=True)
+        yield TextArea.code_editor(self.initial_content, id="editor",language=self.language,soft_wrap=True)
         yield Footer(show_command_palette=False)
         
     def on_mount(self) -> None:
@@ -52,11 +59,11 @@ class TextEditorApp(App):
         self.update_title()
         
     def update_title(self) -> None:
-        title = "ted"
+        title = self.title
         if self.filepath:
             title = f"{os.path.basename(self.filepath)} - {title}"
-        if self.modified:
-            title = f"*{title}"
+            if self.modified:
+                title = f"*{title}"
         self.title = title
         
     def on_text_area_changed(self) -> None:
@@ -97,8 +104,10 @@ class TextEditorApp(App):
         self.push_screen(YesNoScreen(), callback=_callback)
         # self.save_file()
     def exit(self) -> None:
-        if self.modified:
+        setattr(self, 'exit_msg','undefined')
+        if self.filepath:            
             # prompt before save
-            self.prompt_for_saving()
+            if self.modified:
+                self.prompt_for_saving()
         if getattr(self, 'exit_msg', 'undefined') != 'resume':
             super().exit()
