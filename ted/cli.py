@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 from .tui import TextEditorApp
+import pathlib
 
 def validate_filepath(filepath: str) -> str:
     """Handle file path validation and user prompts."""
@@ -28,7 +29,7 @@ def validate_filepath(filepath: str) -> str:
         if not os.access(dir_path, os.W_OK):
             print(f"Error: Permission denied to create file in '{dir_path}'")
             sys.exit(1)
-            
+    pathlib.Path(filepath).touch()
     return filepath
 
 def main():
@@ -38,7 +39,9 @@ def main():
     
     try:
         filepath = validate_filepath(args.filepath)
-        TextEditorApp(filepath=filepath).run()
+        with open(filepath, 'r') as f:
+            content = f.read()
+        TextEditorApp(filepath=filepath, content=content).run()
     except Exception as e:
         print(f"Error: {str(e)}")
         sys.exit(1)

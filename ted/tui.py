@@ -1,13 +1,26 @@
 from textual.app import App, ComposeResult
-from textual.widgets import TextArea, Button, Footer, Header
+from textual.widgets import Static, TextArea, Button, Footer, Header
 from textual.binding import Binding
+from textual.screen import ModalScreen
 from textual.containers import Container, Horizontal
 from textual.reactive import reactive
 from textual import events, on
 import os
 from typing import Optional
 
-
+class YesNoScreen(ModalScreen[str]):
+    def compose(self) -> ComposeResult:
+        yield Static("Save before exit?")
+        yield Button(name="Save", id="save")
+        yield Button(name="Quit", id="quit")
+        yield Button(name="Resume", id="resume")
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        ret =event.button.id
+        self.dismiss(ret)
+    # close textual modal on escape key press
+    def on_key(self, event: events.Key) -> None:
+        if event.key == "escape":
+            self.dismiss('resume')
 # since textual-editor is most likely bloatware, we don't want to adopt it.
 # TODO: enable word wrap, make word wrap as default, can be toggled with a keyboard shortcut switch ctrl+w
 
@@ -79,10 +92,16 @@ class TextEditorApp(App):
         
     def key_ctrl_q(self) -> None:
         self.exit()
-        
+    def prompt_for_saving(self):
+        def _callback(msg:str):
+            setattr(self, 'exit_msg', msg)
+            if msg == 'save':
+                self.save_file()
+        self.push_screen(YesNoScreen(), callback=_callback)
+        # self.save_file()
     def exit(self) -> None:
         if self.modified:
             # prompt before save
-            ...
-            # self.save_file()
-        super().exit()
+            self.prompt_for_saving()
+        if getattr(self, 'exit_msg', 'undefined') != 'resume':
+            super().exit()
