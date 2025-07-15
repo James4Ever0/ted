@@ -4,6 +4,7 @@ import sys
 from .tui import TextEditorApp
 import pathlib
 
+
 def validate_filepath(filepath: str) -> str:
     """Handle file path validation and user prompts."""
     if not filepath:
@@ -18,10 +19,10 @@ def validate_filepath(filepath: str) -> str:
             sys.exit(1)
     else:
         create = input(f"File '{filepath}' doesn't exist. Create it? [y/N]: ").lower()
-        if create != 'y':
+        if create != "y":
             print("Aborted.")
             sys.exit(0)
-            
+
         # Validate directory permissions
         dir_path = os.path.dirname(filepath) or "."
         if not os.path.exists(dir_path):
@@ -32,14 +33,15 @@ def validate_filepath(filepath: str) -> str:
     pathlib.Path(filepath).touch()
     return filepath
 
+
 def main():
-    parser = argparse.ArgumentParser(description='ted - Terminal Text Editor')
-    parser.add_argument('filepath', nargs='?', help='File to edit')
+    parser = argparse.ArgumentParser(description="ted - Terminal Text Editor")
+    parser.add_argument("filepath", nargs="?", help="File to edit")
     args = parser.parse_args()
-    
+
     try:
         filepath = validate_filepath(args.filepath)
-        with open(filepath, 'r') as f:
+        with open(filepath, "r") as f:
             content = f.read()
         TextEditorApp(filepath=filepath, content=content).run()
     except Exception as e:
