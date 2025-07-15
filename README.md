@@ -7,20 +7,7 @@ A simple TUI text editor using Textual.
 pip install ted-editor
 ```
 
-## CLI Usage
-```bash
-ted [filepath]
-```
-
-## API Usage
-
-```python
-from ted import edit
-
-content = edit(content="Initial text", filepath="demo.txt")
-```
-
-### Key Features:
+### Key Features
 
 1. **Dual Interface**:
    - CLI: `ted <filepath>`
@@ -43,7 +30,7 @@ content = edit(content="Initial text", filepath="demo.txt")
    - `filepath=None`: Memory-only editing
    - Returns edited content
 
-### Usage Examples:
+### Usage
 
 **CLI:**
 ```bash
