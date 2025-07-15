@@ -33,13 +33,14 @@ class YesNoScreen(ModalScreen[str]):
             # close textual modal on escape key press
             self.dismiss("resume")
         elif event.key == "up":
-            ...
+            self.focus_previous("Button")
         elif event.key == "down":
-            ...
+            self.focus_next("Button")
         elif event.key == "left":
-            ...
+            self.focus_previous("Button")
         elif event.key == "right":
-            ...
+            self.focus_next("Button")
+
 
 
 # since textual-editor is most likely bloatware, we don't want to adopt it but rip it apart.
