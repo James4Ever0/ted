@@ -46,6 +46,7 @@ def edit(
             content=editor.result,
             filepath=editor.filepath,
             modified=editor.modified,
+            saved=editor.saved,
         )
         return ret
     else:

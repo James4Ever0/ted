@@ -97,6 +97,7 @@ class TextEditorApp(App):
         self.initial_content = content
         self.result = content
         self.modified = modified
+        self.saved=False
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -119,6 +120,7 @@ class TextEditorApp(App):
 
     def on_text_area_changed(self) -> None:
         self.modified = True
+        self.saved=False
         self.update_title()
 
     def action_save(self) -> None:
@@ -139,6 +141,7 @@ class TextEditorApp(App):
                 with open(self.filepath, "w") as f:
                     f.write(content)
                 self.modified = False
+                self.saved=True
                 self.update_title()
                 self.notify(f"Saved to {self.filepath}")
             except OSError as e:
