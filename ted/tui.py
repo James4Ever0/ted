@@ -1,5 +1,6 @@
 from textual.app import App, ComposeResult
-from textual.widgets import Static, TextArea, Button, Footer, Header
+
+from textual.widgets import TextArea, Button, Header, Footer, Static, Input
 from textual.binding import Binding
 from textual.screen import ModalScreen
 from textual import events
@@ -7,6 +8,7 @@ import os
 from typing import Optional
 from pathlib import PurePath
 from textual.widgets.text_area import BUILTIN_LANGUAGES
+from textual.containers import Horizontal, Vertical
 
 # TODO: command palette ctrl+p
 # TODO: ctrl+f search
@@ -18,7 +20,7 @@ from textual.widgets.text_area import BUILTIN_LANGUAGES
 FIND_NEXT = 1
 FIND_PREV = -1
 
- 
+
 class CodeEditor(TextArea):
     """Custom TextArea with enhanced indentation handling"""
 
@@ -26,37 +28,38 @@ class CodeEditor(TextArea):
         # Handle Tab with selection
         if event.key == "tab" and self.selection:
             selection = self.selection
-            start_line = selection.start.line
-            end_line = selection.end.line
-            
+
+            start_line = selection.start[0]
+            end_line = selection.end[0]
+
             # Adjust end line if selection ends at column 0
-            if selection.end.column == 0 and end_line > start_line:
+            if selection.end[1] == 0 and end_line > start_line:
                 end_line -= 1
-            
+
             # Process selected lines
             if start_line <= end_line:
                 with self.batch_update():
                     for line_no in range(start_line, end_line + 1):
                         self.insert_at((line_no, 0), self._get_indent_str())
                 return
-        
+
         # Handle Shift+Tab with selection
         elif event.key == "shift+tab" and self.selection:
             selection = self.selection
-            start_line = selection.start.line
-            end_line = selection.end.line
-            
+            start_line = selection.start[0]
+            end_line = selection.end[0]
+
             # Adjust end line if selection ends at column 0
-            if selection.end.column == 0 and end_line > start_line:
+            if selection.end[1] == 0 and end_line > start_line:
                 end_line -= 1
-            
+
             # Process selected lines
             if start_line <= end_line:
                 with self.batch_update():
                     for line_no in range(start_line, end_line + 1):
                         self._remove_indentation(line_no)
                 return
-        
+
         # Default behavior for other cases
         return super().key(event)
 
@@ -69,7 +72,7 @@ class CodeEditor(TextArea):
         line = self.document.get_line(line_no)
         if not line:
             return
-        
+
         # Determine removal count based on tab behavior
         if self.tab_behavior == "indent":
             # Remove spaces up to indent_width
@@ -89,6 +92,7 @@ class CodeEditor(TextArea):
 
 class SearchReplaceScreen(ModalScreen):
     """Modal screen for search/replace functionality"""
+
     BINDINGS = [Binding("escape", "dismiss", "Close")]
 
     def __init__(self, editor: TextArea, replace_mode: bool = False) -> None:
@@ -104,7 +108,7 @@ class SearchReplaceScreen(ModalScreen):
                 yield Input(placeholder="Search term", id="search-term")
                 if self.replace_mode:
                     yield Input(placeholder="Replace with", id="replace-term")
-            
+
             with Horizontal(id="button-row"):
                 yield Button("Next [Enter]", id="next")
                 yield Button("Prev [Shift+Enter]", id="prev")
@@ -142,7 +146,7 @@ class SearchReplaceScreen(ModalScreen):
         search_term = self.query_one("#search-term", Input).value
         if not search_term:
             return
-            
+
         self.last_search = (search_term, direction)
         found = self.editor.find_next(search_term, direction == FIND_PREV)
         if not found:
@@ -151,7 +155,7 @@ class SearchReplaceScreen(ModalScreen):
     def replace(self) -> None:
         search_term = self.query_one("#search-term", Input).value
         replace_term = self.query_one("#replace-term", Input).value
-        
+
         if self.editor.selected_text == search_term:
             self.editor.replace(replace_term)
         self.find_next()
@@ -163,7 +167,6 @@ class SearchReplaceScreen(ModalScreen):
 
     def action_dismiss(self) -> None:
         self.dismiss()
-
 
 
 # TODO: use microsoft edit on supported platform (linux, windows)
@@ -198,7 +201,6 @@ class YesNoScreen(ModalScreen[str]):
             self.focus_next("Button")
 
 
-
 # since textual-editor is most likely bloatware, we don't want to adopt it but rip it apart.
 def infer_language_from_filepath(file_path: str):
     file_extension = PurePath(file_path).suffix
@@ -221,17 +223,15 @@ class TextEditorApp(App):
     """Textual-based text editor interface"""
 
     BINDINGS = [
-        Binding(key=key, action=action, description=action.title())
-        for key, action in [
-            ("ctrl+s", "save"),
-            ("ctrl+q", "quit"),
-            ("ctrl+r", "wrap"),
-        ]
-    ] + [Binding("ctrl+f", "search", "Find"),
-        Binding("ctrl+r", "replace", "Replace"),
-        Binding("ctrl+a", "select_all", "Select All"),
-        Binding("ctrl+u", "undo", "Undo"),
-        Binding("ctrl+shift+u", "redo", "Redo"),]
+        Binding("ctrl+s", "save", "Save"),
+        Binding("ctrl+q", "quit", "Quit"),
+        Binding("ctrl+r", "wrap", "Wrap"),
+        # Binding("shift+ctrl+f", "search", "Find"),
+        # Binding("shift+ctrl+r", "replace", "Replace"),
+        # Binding("shift+ctrl+a", "select_all", "Select All"),
+        # Binding("ctrl+shift+u", "undo", "Undo"),
+        # Binding("ctrl+shift+r", "redo", "Redo"),
+    ]
     CSS_PATH = "editor.css"  # or we can comment this out
 
     def __init__(
@@ -259,17 +259,21 @@ class TextEditorApp(App):
         self.initial_content = content
         self.result = content
         self.modified = modified
-        self.saved=False
+        self.saved = False
+        self.text_area = TextArea.code_editor(
+            text=self.initial_content,
+            id="editor",
+            language=self.language,
+            soft_wrap=True,
+            theme="vscode_dark",
+            tab_behavior="indent",  # or "tab" for literal tabs
+            # indent_width=4,
+            # use_system_clipboard=True,
+        )
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield CodeEditor.code_editor(
-            text=self.initial_content, id="editor", language=self.language, soft_wrap=True,
-            theme="vscode_dark",
-            tab_behavior="indent",  # or "tab" for literal tabs
-            indent_width=4,
-            use_system_clipboard=True
-        )
+        yield self.text_area
         yield Footer(show_command_palette=False)
 
     def on_mount(self) -> None:
@@ -286,7 +290,7 @@ class TextEditorApp(App):
 
     def on_text_area_changed(self) -> None:
         self.modified = True
-        self.saved=False
+        self.saved = False
         self.update_title()
 
     def action_save(self) -> None:
@@ -299,7 +303,6 @@ class TextEditorApp(App):
         widget = self.query_one(TextArea)
         wrap_style = widget.soft_wrap
         widget.soft_wrap = not wrap_style
-
 
     def action_search(self) -> None:
         self.push_screen(SearchReplaceScreen(self.text_area))
@@ -316,7 +319,6 @@ class TextEditorApp(App):
     def action_redo(self) -> None:
         self.text_area.redo()
 
-
     def save_file(self) -> None:
         content = self.query_one(TextArea).text
         if self.filepath:
@@ -324,7 +326,7 @@ class TextEditorApp(App):
                 with open(self.filepath, "w") as f:
                     f.write(content)
                 self.modified = False
-                self.saved=True
+                self.saved = True
                 self.update_title()
                 self.notify(f"Saved to {self.filepath}")
             except OSError as e:
