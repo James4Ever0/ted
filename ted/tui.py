@@ -8,7 +8,14 @@ from typing import Optional
 from pathlib import PurePath
 from textual.widgets.text_area import BUILTIN_LANGUAGES
 
+# TODO: command palette ctrl+p
+# TODO: ctrl+f search
+# TODO: ctrl+r replace
+# TODO: ctrl+a select all
+# TODO: ctrl+u undo shift+ctrl+u redo
 
+
+# TODO: use microsoft edit on supported platform (linux, windows)
 class YesNoScreen(ModalScreen[str]):
     CSS_PATH = "editor.css"
 
