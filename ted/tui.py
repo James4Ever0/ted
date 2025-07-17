@@ -241,12 +241,14 @@ class TextEditorApp(App):
         modified=False,
         language: Optional[str] = None,
         title: str = "ted",
+        show_command_palette=False,
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
         assert content is not None
         self._title = title
+        self.show_command_palette=show_command_palette
         self.filepath = filepath
         if language:
             self.language = language
@@ -274,7 +276,7 @@ class TextEditorApp(App):
     def compose(self) -> ComposeResult:
         yield Header()
         yield self.text_area
-        yield Footer(show_command_palette=False)
+        yield Footer(show_command_palette=self.show_command_palette)
 
     def on_mount(self) -> None:
         self.query_one(TextArea).focus()
