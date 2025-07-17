@@ -1,7 +1,11 @@
 
 <div align="center">
 
-<h1>ted</h1>
+<!-- TODO: Add a screenshot -->
+<!-- TODO: Make the text in ted logo partially selected, and put a cursor around the selected area, use monospace font for the text -->
+
+<img src="https://raw.githubusercontent.com/james4ever0/ted/master/logo/ted-black.jpeg" alt="logo" width="200"/>
+
 <p align="center">A simple TUI editor with a CLI and API using Textual</p>
 <p align="center">
 <a href="https://github.com/james4ever0/ted/blob/master/LICENSE"><img alt="License: WTFPL" src="https://img.shields.io/badge/license-UNLICENSE-green.svg?style=flat"></a>
