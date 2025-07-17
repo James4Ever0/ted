@@ -17,7 +17,6 @@
 </div>
 
 
-
 ## Installation
 ```bash
 # without syntax highlight
@@ -72,8 +71,16 @@ new_content = edit(content="New content", filepath="new.txt")
 temp_content = edit(content="Temporary text")
 ```
 
+## Screenshots
+
+![Demo](https://raw.githubusercontent.com/james4ever0/ted/master/logo/demo.png)
+
 ## See also
 
-[edit](https://github.com/microsoft/edit)
+[edit](https://github.com/microsoft/edit) (Microsoft rewrite in Rust)
 
-[textual-editor](https://github.com/kyrlian/textual-editor)
+[textual-editor](https://github.com/kyrlian/textual-editor) (Most similar, with a directory tree tab)
+
+[TED](https://texteditors.org/cgi-bin/wiki.pl?TED) (MS-DOS)
+
+[ted](https://github.com/robdelacruz/ted) (Go implementation)
