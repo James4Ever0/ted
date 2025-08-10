@@ -16,6 +16,9 @@
 </p>
 </div>
 
+## Video demo
+
+![ted_demo](https://github.com/user-attachments/assets/93b59739-40cd-4e07-bb32-0cfa5adfbec1)
 
 ## Installation
 ```bash
@@ -70,10 +73,6 @@ new_content = edit(content="New content", filepath="new.txt")
 # Memory-only editing
 temp_content = edit(content="Temporary text")
 ```
-
-## Screenshots
-
-![Demo](https://raw.githubusercontent.com/james4ever0/ted/master/logo/demo.png)
 
 ## See also
 
